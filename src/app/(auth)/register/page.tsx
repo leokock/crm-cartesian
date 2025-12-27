@@ -1,5 +1,6 @@
 'use client'
 
+// Registration page - uses handle_new_user trigger for org creation
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -49,6 +50,7 @@ export default function RegisterPage() {
 
     try {
       // Criar usuário no Supabase Auth
+      // O trigger handle_new_user automaticamente cria a organização, perfil e estágios do pipeline
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
@@ -63,6 +65,8 @@ export default function RegisterPage() {
       if (authError) {
         if (authError.message.includes('already registered')) {
           setError('Este email já está cadastrado')
+        } else if (authError.message.includes('Database error')) {
+          setError('Erro ao criar conta. Tente novamente.')
         } else {
           setError(authError.message)
         }
@@ -70,34 +74,8 @@ export default function RegisterPage() {
       }
 
       if (authData.user) {
-        // Criar organização e perfil usando a função do banco
-        const slug = organizationName
-          .toLowerCase()
-          .normalize('NFD')
-          .replace(/[\u0300-\u036f]/g, '')
-          .replace(/[^a-z0-9]+/g, '-')
-          .replace(/^-+|-+$/g, '')
-
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const { error: orgError } = await (supabase.rpc as any)(
-          'create_organization_with_seeds',
-          {
-            org_name: organizationName,
-            org_slug: slug + '-' + Date.now().toString(36),
-            admin_user_id: authData.user.id,
-            admin_email: email,
-            admin_name: fullName,
-          }
-        )
-
-        if (orgError) {
-          console.error('Erro ao criar organização:', orgError)
-          setError('Erro ao criar organização. Tente novamente.')
-          return
-        }
+        setSuccess(true)
       }
-
-      setSuccess(true)
     } catch {
       setError('Ocorreu um erro ao criar a conta')
     } finally {
