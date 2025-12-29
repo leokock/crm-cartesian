@@ -2,6 +2,11 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## URLs
+
+- **Production**: https://crm-cartesian.vercel.app/
+- **Local Development**: http://localhost:3000/
+
 ## Build & Development Commands
 
 ```bash
