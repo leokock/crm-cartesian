@@ -250,8 +250,8 @@ export function ActivityFormDialog({
                   <FormItem>
                     <FormLabel>Empresa</FormLabel>
                     <Select
-                      onValueChange={field.onChange}
-                      value={field.value || ''}
+                      onValueChange={(value) => field.onChange(value === '__none__' ? null : value)}
+                      value={field.value || '__none__'}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -259,7 +259,7 @@ export function ActivityFormDialog({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">Nenhuma</SelectItem>
+                        <SelectItem value="__none__">Nenhuma</SelectItem>
                         {clients?.map((client) => (
                           <SelectItem key={client.id} value={client.id}>
                             {client.name}
@@ -279,8 +279,8 @@ export function ActivityFormDialog({
                   <FormItem>
                     <FormLabel>Contato</FormLabel>
                     <Select
-                      onValueChange={field.onChange}
-                      value={field.value || ''}
+                      onValueChange={(value) => field.onChange(value === '__none__' ? null : value)}
+                      value={field.value || '__none__'}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -288,7 +288,7 @@ export function ActivityFormDialog({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">Nenhum</SelectItem>
+                        <SelectItem value="__none__">Nenhum</SelectItem>
                         {filteredContacts?.map((contact) => (
                           <SelectItem key={contact.id} value={contact.id}>
                             {contact.first_name} {contact.last_name}
@@ -310,8 +310,8 @@ export function ActivityFormDialog({
                   <FormItem>
                     <FormLabel>Negócio</FormLabel>
                     <Select
-                      onValueChange={field.onChange}
-                      value={field.value || ''}
+                      onValueChange={(value) => field.onChange(value === '__none__' ? null : value)}
+                      value={field.value || '__none__'}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -319,7 +319,7 @@ export function ActivityFormDialog({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">Nenhum</SelectItem>
+                        <SelectItem value="__none__">Nenhum</SelectItem>
                         {filteredDeals?.map((deal) => (
                           <SelectItem key={deal.id} value={deal.id}>
                             {deal.title}
@@ -339,8 +339,8 @@ export function ActivityFormDialog({
                   <FormItem>
                     <FormLabel>Projeto</FormLabel>
                     <Select
-                      onValueChange={field.onChange}
-                      value={field.value || ''}
+                      onValueChange={(value) => field.onChange(value === '__none__' ? null : value)}
+                      value={field.value || '__none__'}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -348,7 +348,7 @@ export function ActivityFormDialog({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">Nenhum</SelectItem>
+                        <SelectItem value="__none__">Nenhum</SelectItem>
                         {filteredProjects?.map((project) => (
                           <SelectItem key={project.id} value={project.id}>
                             {project.name}
