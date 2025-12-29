@@ -246,6 +246,11 @@ export default function DealsPage() {
         deal={selectedDeal}
         open={!!selectedDeal}
         onOpenChange={(open) => !open && setSelectedDeal(null)}
+        onEdit={(deal) => {
+          setSelectedDeal(null)
+          setEditingDeal(deal)
+          setIsFormOpen(true)
+        }}
       />
 
       <ConfirmDialog
