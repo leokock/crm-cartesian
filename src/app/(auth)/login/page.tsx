@@ -106,7 +106,7 @@ export default function LoginPage() {
               />
             </div>
           </CardContent>
-          <CardFooter className="flex flex-col gap-4">
+          <CardFooter>
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? (
                 <>
@@ -117,15 +117,6 @@ export default function LoginPage() {
                 'Entrar'
               )}
             </Button>
-            <p className="text-center text-sm text-muted-foreground">
-              Não tem uma conta?{' '}
-              <Link
-                href="/register"
-                className="font-medium text-primary hover:underline"
-              >
-                Criar conta
-              </Link>
-            </p>
           </CardFooter>
         </form>
       </Card>

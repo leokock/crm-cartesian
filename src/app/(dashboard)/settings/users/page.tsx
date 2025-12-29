@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -31,10 +33,20 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
 import { useOrganizationMembers, useUpdateMemberRole, useProfile } from '@/hooks/use-settings'
 import { useToast } from '@/hooks/use-toast'
+import { createClient } from '@/lib/supabase/client'
 import { formatDate } from '@/lib/utils'
-import { Users, UserPlus, Shield, Crown, User } from 'lucide-react'
+import { Users, UserPlus, Shield, Crown, User, Loader2, Plus } from 'lucide-react'
 
 const roleLabels = {
   admin: 'Administrador',
@@ -82,11 +94,74 @@ function MemberSkeleton() {
 export default function UsersSettingsPage() {
   const { toast } = useToast()
   const { data: currentUser } = useProfile()
-  const { data: members, isLoading } = useOrganizationMembers()
+  const { data: members, isLoading, refetch } = useOrganizationMembers()
   const updateRole = useUpdateMemberRole()
   const [changingRole, setChangingRole] = useState<{ memberId: string; newRole: 'admin' | 'manager' | 'user' } | null>(null)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [isCreating, setIsCreating] = useState(false)
+  const [newUser, setNewUser] = useState({
+    email: '',
+    password: '',
+    full_name: '',
+    role: 'user' as 'admin' | 'manager' | 'user',
+  })
+  const supabase = createClient()
 
   const isAdmin = currentUser?.role === 'admin'
+
+  const handleCreateUser = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsCreating(true)
+
+    try {
+      // Create user via Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: newUser.email,
+        password: newUser.password,
+        options: {
+          data: {
+            full_name: newUser.full_name,
+            skip_org_creation: true,
+          },
+        },
+      })
+
+      if (authError) throw authError
+
+      if (authData.user && currentUser?.organization_id) {
+        // Create profile for the new user in the same organization
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            id: authData.user.id,
+            organization_id: currentUser.organization_id,
+            email: newUser.email,
+            full_name: newUser.full_name,
+            role: newUser.role,
+          })
+
+        if (profileError) throw profileError
+
+        toast({
+          title: 'Usuário criado',
+          description: `${newUser.full_name} foi adicionado à equipe.`,
+        })
+
+        setIsDialogOpen(false)
+        setNewUser({ email: '', password: '', full_name: '', role: 'user' })
+        refetch()
+      }
+    } catch (error) {
+      console.error('Erro ao criar usuário:', error)
+      toast({
+        title: 'Erro ao criar usuário',
+        description: error instanceof Error ? error.message : 'Tente novamente',
+        variant: 'destructive',
+      })
+    } finally {
+      setIsCreating(false)
+    }
+  }
 
   const handleRoleChange = async () => {
     if (!changingRole) return
@@ -126,10 +201,95 @@ export default function UsersSettingsPage() {
               </CardDescription>
             </div>
             {isAdmin && (
-              <Button disabled>
-                <UserPlus className="mr-2 h-4 w-4" />
-                Convidar usuário
-              </Button>
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button>
+                    <UserPlus className="mr-2 h-4 w-4" />
+                    Novo Usuário
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <form onSubmit={handleCreateUser}>
+                    <DialogHeader>
+                      <DialogTitle>Adicionar Usuário</DialogTitle>
+                      <DialogDescription>
+                        Crie uma nova conta para um membro da equipe
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="full_name">Nome Completo</Label>
+                        <Input
+                          id="full_name"
+                          value={newUser.full_name}
+                          onChange={(e) => setNewUser({ ...newUser, full_name: e.target.value })}
+                          placeholder="João Silva"
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="email">Email</Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          value={newUser.email}
+                          onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                          placeholder="joao@empresa.com"
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="password">Senha</Label>
+                        <Input
+                          id="password"
+                          type="password"
+                          value={newUser.password}
+                          onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                          placeholder="Mínimo 6 caracteres"
+                          minLength={6}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="role">Função</Label>
+                        <Select
+                          value={newUser.role}
+                          onValueChange={(value: 'admin' | 'manager' | 'user') =>
+                            setNewUser({ ...newUser, role: value })
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="admin">Administrador</SelectItem>
+                            <SelectItem value="manager">Gerente</SelectItem>
+                            <SelectItem value="user">Usuário</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                        Cancelar
+                      </Button>
+                      <Button type="submit" disabled={isCreating}>
+                        {isCreating ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Criando...
+                          </>
+                        ) : (
+                          <>
+                            <Plus className="mr-2 h-4 w-4" />
+                            Criar Usuário
+                          </>
+                        )}
+                      </Button>
+                    </DialogFooter>
+                  </form>
+                </DialogContent>
+              </Dialog>
             )}
           </div>
         </CardHeader>
