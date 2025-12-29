@@ -249,8 +249,8 @@ export function DealFormDialog({
                   <FormItem>
                     <FormLabel>Projeto</FormLabel>
                     <Select
-                      onValueChange={field.onChange}
-                      value={field.value || ''}
+                      onValueChange={(value) => field.onChange(value === '__none__' ? null : value)}
+                      value={field.value || '__none__'}
                       disabled={!selectedCompanyId}
                     >
                       <FormControl>
@@ -259,7 +259,7 @@ export function DealFormDialog({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">Nenhum</SelectItem>
+                        <SelectItem value="__none__">Nenhum</SelectItem>
                         {filteredProjects?.map((project) => (
                           <SelectItem key={project.id} value={project.id}>
                             {project.name}
@@ -279,8 +279,8 @@ export function DealFormDialog({
                   <FormItem>
                     <FormLabel>Contato</FormLabel>
                     <Select
-                      onValueChange={field.onChange}
-                      value={field.value || ''}
+                      onValueChange={(value) => field.onChange(value === '__none__' ? null : value)}
+                      value={field.value || '__none__'}
                       disabled={!selectedCompanyId}
                     >
                       <FormControl>
@@ -289,7 +289,7 @@ export function DealFormDialog({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">Nenhum</SelectItem>
+                        <SelectItem value="__none__">Nenhum</SelectItem>
                         {filteredContacts?.map((contact) => (
                           <SelectItem key={contact.id} value={contact.id}>
                             {contact.first_name} {contact.last_name}
