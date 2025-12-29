@@ -13,7 +13,7 @@ export interface UserProfile {
   phone: string | null
   job_title: string | null
   email: string
-  role: 'admin' | 'manager' | 'user'
+  role: 'admin' | 'manager' | 'sales_rep'
   organization_id: string
   created_at: string
   updated_at: string
@@ -36,7 +36,7 @@ export interface OrganizationMember {
   full_name: string | null
   email: string
   avatar_url: string | null
-  role: 'admin' | 'manager' | 'user'
+  role: 'admin' | 'manager' | 'sales_rep'
   job_title: string | null
   created_at: string
 }
@@ -167,7 +167,7 @@ export async function getOrganizationMembers(): Promise<OrganizationMember[]> {
   }))
 }
 
-export async function updateMemberRole(memberId: string, role: 'admin' | 'manager' | 'user'): Promise<void> {
+export async function updateMemberRole(memberId: string, role: 'admin' | 'manager' | 'sales_rep'): Promise<void> {
   const supabase = getSupabase()
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

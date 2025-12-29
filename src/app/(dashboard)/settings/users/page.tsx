@@ -51,19 +51,19 @@ import { Users, UserPlus, Shield, Crown, User, Loader2, Plus } from 'lucide-reac
 const roleLabels = {
   admin: 'Administrador',
   manager: 'Gerente',
-  user: 'Usuário',
+  sales_rep: 'Vendedor',
 }
 
 const roleIcons = {
   admin: Crown,
   manager: Shield,
-  user: User,
+  sales_rep: User,
 }
 
 const roleBadgeVariants = {
   admin: 'default' as const,
   manager: 'secondary' as const,
-  user: 'outline' as const,
+  sales_rep: 'outline' as const,
 }
 
 function MemberSkeleton() {
@@ -96,14 +96,14 @@ export default function UsersSettingsPage() {
   const { data: currentUser } = useProfile()
   const { data: members, isLoading, refetch } = useOrganizationMembers()
   const updateRole = useUpdateMemberRole()
-  const [changingRole, setChangingRole] = useState<{ memberId: string; newRole: 'admin' | 'manager' | 'user' } | null>(null)
+  const [changingRole, setChangingRole] = useState<{ memberId: string; newRole: 'admin' | 'manager' | 'sales_rep' } | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isCreating, setIsCreating] = useState(false)
   const [newUser, setNewUser] = useState({
     email: '',
     password: '',
     full_name: '',
-    role: 'user' as 'admin' | 'manager' | 'user',
+    role: 'sales_rep' as 'admin' | 'manager' | 'sales_rep',
   })
   const supabase = createClient()
 
@@ -130,8 +130,8 @@ export default function UsersSettingsPage() {
 
       if (authData.user && currentUser?.organization_id) {
         // Create profile for the new user in the same organization
-        const { error: profileError } = await supabase
-          .from('profiles')
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { error: profileError } = await (supabase.from('profiles') as any)
           .insert({
             id: authData.user.id,
             organization_id: currentUser.organization_id,
@@ -148,7 +148,7 @@ export default function UsersSettingsPage() {
         })
 
         setIsDialogOpen(false)
-        setNewUser({ email: '', password: '', full_name: '', role: 'user' })
+        setNewUser({ email: '', password: '', full_name: '', role: 'sales_rep' })
         refetch()
       }
     } catch (error) {
@@ -254,7 +254,7 @@ export default function UsersSettingsPage() {
                         <Label htmlFor="role">Função</Label>
                         <Select
                           value={newUser.role}
-                          onValueChange={(value: 'admin' | 'manager' | 'user') =>
+                          onValueChange={(value: 'admin' | 'manager' | 'sales_rep') =>
                             setNewUser({ ...newUser, role: value })
                           }
                         >
@@ -264,7 +264,7 @@ export default function UsersSettingsPage() {
                           <SelectContent>
                             <SelectItem value="admin">Administrador</SelectItem>
                             <SelectItem value="manager">Gerente</SelectItem>
-                            <SelectItem value="user">Usuário</SelectItem>
+                            <SelectItem value="sales_rep">Vendedor</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -372,7 +372,7 @@ export default function UsersSettingsPage() {
                               onValueChange={(value) =>
                                 setChangingRole({
                                   memberId: member.id,
-                                  newRole: value as 'admin' | 'manager' | 'user',
+                                  newRole: value as 'admin' | 'manager' | 'sales_rep',
                                 })
                               }
                             >
@@ -382,7 +382,7 @@ export default function UsersSettingsPage() {
                               <SelectContent>
                                 <SelectItem value="admin">Administrador</SelectItem>
                                 <SelectItem value="manager">Gerente</SelectItem>
-                                <SelectItem value="user">Usuário</SelectItem>
+                                <SelectItem value="sales_rep">Vendedor</SelectItem>
                               </SelectContent>
                             </Select>
                           ) : (
@@ -427,7 +427,7 @@ export default function UsersSettingsPage() {
             <div className="p-4 rounded-lg border">
               <div className="flex items-center gap-2 mb-2">
                 <User className="h-4 w-4 text-primary" />
-                <span className="font-medium">Usuário</span>
+                <span className="font-medium">Vendedor</span>
               </div>
               <p className="text-sm text-muted-foreground">
                 Acesso básico para gerenciar seus próprios negócios e atividades.

@@ -45,7 +45,7 @@ type PasswordFormData = z.infer<typeof passwordSchema>
 const roleLabels = {
   admin: 'Administrador',
   manager: 'Gerente',
-  user: 'Usuário',
+  sales_rep: 'Vendedor',
 }
 
 export default function ProfileSettingsPage() {
@@ -155,7 +155,7 @@ export default function ProfileSettingsPage() {
                 {profile?.email}
               </CardDescription>
               <Badge variant="secondary" className="mt-2">
-                {roleLabels[profile?.role || 'user']}
+                {roleLabels[profile?.role || 'sales_rep']}
               </Badge>
             </div>
           </div>
